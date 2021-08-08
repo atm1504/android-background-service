@@ -1,11 +1,9 @@
 package com.atm1504.backgroundservice;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -22,29 +20,30 @@ public class BackgroundTask extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        runLongLoop();
+        return Result.success();
+    }
+
+    public void runLongLoop() {
         Thread thread = new Thread() {
             public void run() {
                 Looper.prepare();
-                @SuppressLint("HandlerLeak") Handler mHandler = new Handler() {
-                    @SuppressLint("HandlerLeak")
+                Handler mHandler = new Handler();
+                mHandler.postDelayed(new Runnable() {
                     @Override
-                    public void handleMessage(@NonNull Message msg) {
-                        super.handleMessage(msg);
+                    public void run() {
                         RunTimer();
+                        runLongLoop();
                     }
-                };
-                Message message = new Message();
-                mHandler.handleMessage(message);
+                }, 10000);
                 Looper.loop();
             }
         };
         thread.start();
-
-        return Result.success();
     }
 
     public void RunTimer() {
-        new CountDownTimer(30000, 1000) {
+        new CountDownTimer(9000, 1000) {
 
             public void onTick(long millisUntilFinished) {
                 Log.d("ANAM", "seconds remaining:  " + millisUntilFinished);
